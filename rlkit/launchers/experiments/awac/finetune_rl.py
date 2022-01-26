@@ -18,9 +18,9 @@ from rlkit.demos.source.hdf5_path_loader import HDF5PathLoader
 from rlkit.demos.source.mdp_path_loader import MDPPathLoader
 # from rlkit.visualization.video import save_paths, VideoSaveFunction
 
-from multiworld.core.flat_goal_env import FlatGoalEnv
-from multiworld.core.image_env import ImageEnv
-from multiworld.core.gym_to_multi_env import GymToMultiEnv
+# from multiworld.core.flat_goal_env import FlatGoalEnv
+# from multiworld.core.image_env import ImageEnv
+# from multiworld.core.gym_to_multi_env import GymToMultiEnv
 from rlkit.util.hyperparameter import recursive_dictionary_update
 
 import torch
@@ -59,6 +59,21 @@ ENV_PARAMS = {
             obs_dict=False,
             is_demo=False,
             train_split=0.9,
+        ),
+    },
+    'carla-leaderboard': {
+        'num_expl_steps_per_train_loop': 1000,
+        'max_path_length': 9228,
+        'env_demo_path': dict(
+            path="demos/icml2020/mujoco/hc_action_noise_15.npy",
+            obs_dict=False,
+            is_demo=True,
+        ),
+        'env_offpolicy_data_path': dict(
+            path="/zfsauton/datasets/ArgoRL/zheh/transfuser_autopilot/gpu16_town1346_total1203108_maxtraj9228.npz",
+            obs_dict=False,
+            is_demo=False,
+            train_split=1.0,
         ),
     },
     'Ant-v2': {
@@ -419,6 +434,7 @@ def experiment(variant):
             image_eval_path_collector,
         )
         algorithm.post_train_funcs.append(video_func)
+    # import ipdb; ipdb.set_trace()
     if variant.get('save_paths', False):
         algorithm.post_train_funcs.append(save_paths)
     if variant.get('load_demos', False):
@@ -440,6 +456,8 @@ def experiment(variant):
         )
         import d4rl
         dataset = d4rl.qlearning_dataset(expl_env)
+        # dataset = expl_env.qlearning_dataset()
+        # dataset = dict(np.load("/zfsauton/datasets/ArgoRL/zheh/transfuser_autopilot/gpu16_town1346_total1203108_maxtraj9228.npz"))
         # dataset = expl_env.get_dataset()
         path_loader.load_demos(dataset)
         if variant.get('normalize_rewards_by_return_range'):
@@ -454,4 +472,5 @@ def experiment(variant):
         buffer_path = osp.join(logger.get_snapshot_dir(), 'buffers.p')
         pickle.dump(buffers, open(buffer_path, "wb"))
 
+    # import ipdb; ipdb.set_trace()
     algorithm.train()

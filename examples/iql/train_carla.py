@@ -13,6 +13,45 @@ from rlkit.torch.sac.iql_trainer import IQLTrainer
 import random
 
 import d4rl
+import gym
+import numpy as np
+
+
+class CarlaLeaderboardEnv(gym.Env):
+    def __init__(self):
+        self.action_space = gym.spaces.Box(low=np.array([-0.5, -1.0]), high=np.array([0.5, 1.0]), dtype=np.float32)
+        self.observation_space = gym.spaces.Box(
+             low=np.array([[-4.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.5, -1.0, 0.0]]),
+             high=np.array([[4.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.5, 1.0, 1.0]]),
+             dtype=np.float32)
+
+        self.dataset = dict(np.load("/zfsauton/datasets/ArgoRL/zheh/transfuser_autopilot/gpu16_town1346_total1203108_maxtraj9228.npz"))
+        self.length = len(self.dataset['observations'])
+
+        self._max_episode_steps = 9228
+
+    def get_dataset(self):
+        return self.dataset
+
+    def step(self, action):
+        raise Exception("Step called on environment!")
+
+    def reset(self):
+        # raise Exception("Reset called on environment!")
+        import ipdb; ipdb.set_trace()
+        return self.observation_space.sample()
+
+    def render(self, mode='human', close=False):
+        pass
+
+    def close(self):
+        pass
+
+    def seed(self, seed=None):
+        pass
+
+# Num gradient steps / num_batches
+num_offline_epochs = 1_000_000 / (1203108 / 256)
 
 
 variant = dict(
@@ -20,7 +59,7 @@ variant = dict(
         start_epoch=-1000, # offline epochs
         num_epochs=1001, # online epochs
         batch_size=256,
-        num_eval_steps_per_epoch=1000,
+        num_eval_steps_per_epoch=0,
         num_trains_per_train_loop=1000,
         num_expl_steps_per_train_loop=1000,
         min_num_steps_before_training=1000,
@@ -74,7 +113,7 @@ variant = dict(
     load_env_dataset_demos=True,
 
     normalize_env=False,
-    env_id='halfcheetah-medium-expert-v2',
+    env_class = CarlaLeaderboardEnv,
     normalize_rewards_by_return_range=True,
 
     seed=random.randint(0, 100000),
@@ -83,7 +122,7 @@ variant = dict(
 def main():
     run_experiment(experiment,
         variant=variant,
-        exp_prefix='iql-halfcheetah-medium-expert-v2',
+        exp_prefix='train_leaderboard_seed_2',
         mode="here_no_doodad",
         unpack_variant=False,
         use_gpu=True,

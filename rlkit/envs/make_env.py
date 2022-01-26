@@ -26,6 +26,7 @@ D4RL_ENVS = [
     "hopper-random-v0", "hopper-medium-v0", "hopper-expert-v0", "hopper-mixed-v0", "hopper-medium-expert-v0"
 ]
 
+
 def make(env_id=None, env_class=None, env_kwargs=None, normalize_env=True):
     assert env_id or env_class
     if env_class:
@@ -40,7 +41,11 @@ def make(env_id=None, env_class=None, env_kwargs=None, normalize_env=True):
         env = gym.make(env_id)
     elif env_id:
         env = gym.make(env_id)
-    env = env.env # unwrap TimeLimit
+
+    try:
+        env = env.env # unwrap TimeLimit
+    except:
+        print("WARNING: NO TIMELIMIT")
 
     if normalize_env:
         env = NormalizedBoxEnv(env)

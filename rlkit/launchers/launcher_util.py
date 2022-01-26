@@ -174,6 +174,7 @@ def run_experiment_here(
         raw_variant.pop('instance_type', None)
         return experiment_function(**raw_variant)
     else:
+        # import ipdb; ipdb.set_trace()
         return experiment_function(variant)
 
 
@@ -564,34 +565,34 @@ def run_experiment(
     variant['exp_prefix'] = str(exp_prefix)
     variant['instance_type'] = str(instance_type)
 
-    try:
-        import git
-        doodad_path = osp.abspath(osp.join(
-            osp.dirname(doodad.__file__),
-            os.pardir
-        ))
-        dirs = conf.CODE_DIRS_TO_MOUNT + [doodad_path]
+    # try:
+    #     import git
+    #     doodad_path = osp.abspath(osp.join(
+    #         osp.dirname(doodad.__file__),
+    #         os.pardir
+    #     ))
+    #     dirs = conf.CODE_DIRS_TO_MOUNT + [doodad_path]
 
-        git_infos = []
-        for directory in dirs:
-            # Idk how to query these things, so I'm just doing try-catch
-            try:
-                repo = git.Repo(directory)
-                try:
-                    branch_name = repo.active_branch.name
-                except TypeError:
-                    branch_name = '[DETACHED]'
-                git_infos.append(GitInfo(
-                    directory=directory,
-                    code_diff=repo.git.diff(None),
-                    code_diff_staged=repo.git.diff('--staged'),
-                    commit_hash=repo.head.commit.hexsha,
-                    branch_name=branch_name,
-                ))
-            except git.exc.InvalidGitRepositoryError:
-                pass
-    except ImportError:
-        git_infos = None
+    #     git_infos = []
+    #     for directory in dirs:
+    #         # Idk how to query these things, so I'm just doing try-catch
+    #         try:
+    #             repo = git.Repo(directory)
+    #             try:
+    #                 branch_name = repo.active_branch.name
+    #             except TypeError:
+    #                 branch_name = '[DETACHED]'
+    #             git_infos.append(GitInfo(
+    #                 directory=directory,
+    #                 code_diff=repo.git.diff(None),
+    #                 code_diff_staged=repo.git.diff('--staged'),
+    #                 commit_hash=repo.head.commit.hexsha,
+    #                 branch_name=branch_name,
+    #             ))
+    #         except git.exc.InvalidGitRepositoryError:
+    #             pass
+    # except ImportError:
+    git_infos = None
     run_experiment_kwargs = dict(
         exp_prefix=exp_prefix,
         variant=variant,

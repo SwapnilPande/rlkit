@@ -13,6 +13,69 @@ from rlkit.torch.sac.iql_trainer import IQLTrainer
 import random
 
 import d4rl
+import gym
+import numpy as np
+
+
+class Stop2CarEnv(gym.Env):
+    def __init__(self):
+        self.max_vel = 10.
+
+        self.ego_x = 0.
+        self.ego_vel = self.max_vel
+        self.other_x = 10.
+        self.other_vel = self.max_vel
+        self.t = 0
+
+        self.dt = 0.25
+        self.sign_x = 70.  # stop sign for other vehicle
+        self.max_t = 10.
+        self.crash_dist = 5.
+        #  self.crash_penalty = self.max_vel * self.max_t
+        self.crash_penalty = 0.
+
+        self.min_a = -1.
+        self.max_a = 1.
+
+        self.other_stopping = True
+        self.z_p = 1
+
+        self.max_vel = 10.
+        self.observation_space = gym.spaces.Box(
+            low=np.array([0., -np.inf, 0., -np.inf]),
+            high=np.array([self.max_vel, self.crash_penalty, self.max_vel, np.inf]),
+        )
+        self.action_space = gym.spaces.Box(
+            low=np.array([self.min_a]),
+            high=np.array([self.max_a]),
+        )
+
+        self.dataset = dict(np.load("/zfsauton2/home/swapnilp/transformer_rl/output/stop2car/v2_dt025_uniformidm17/data.npz"))
+        self.dataset['terminals'] = self.dataset['dones']
+        self.dataset["actions"] = np.expand_dims(self.dataset["actions"], axis = -1)
+
+        self._max_episode_steps = 40
+
+    def get_dataset(self):
+        return self.dataset
+
+    def step(self, action):
+        raise Exception("Step called on environment!")
+
+    def reset(self):
+        # raise Exception("Reset called on environment!")
+        import ipdb; ipdb.set_trace()
+        return self.observation_space.sample()
+
+    def render(self, mode='human', close=False):
+        pass
+
+    def close(self):
+        pass
+
+    def seed(self, seed=None):
+        pass
+
 
 
 variant = dict(
@@ -20,7 +83,7 @@ variant = dict(
         start_epoch=-1000, # offline epochs
         num_epochs=1001, # online epochs
         batch_size=256,
-        num_eval_steps_per_epoch=1000,
+        num_eval_steps_per_epoch=0,
         num_trains_per_train_loop=1000,
         num_expl_steps_per_train_loop=1000,
         min_num_steps_before_training=1000,
@@ -74,7 +137,7 @@ variant = dict(
     load_env_dataset_demos=True,
 
     normalize_env=False,
-    env_id='halfcheetah-medium-expert-v2',
+    env_class = Stop2CarEnv,
     normalize_rewards_by_return_range=True,
 
     seed=random.randint(0, 100000),
@@ -83,7 +146,7 @@ variant = dict(
 def main():
     run_experiment(experiment,
         variant=variant,
-        exp_prefix='iql-halfcheetah-medium-expert-v2',
+        exp_prefix='stop2car',
         mode="here_no_doodad",
         unpack_variant=False,
         use_gpu=True,

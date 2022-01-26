@@ -65,19 +65,19 @@ class BatchRLAlgorithm(BaseRLAlgorithm, metaclass=abc.ABCMeta):
                 self.replay_buffer.add_paths(init_expl_paths)
             self.expl_data_collector.end_epoch(-1)
 
-        self.eval_data_collector.collect_new_paths(
-            self.max_path_length,
-            self.num_eval_steps_per_epoch,
-            discard_incomplete_paths=True,
-        )
+        # self.eval_data_collector.collect_new_paths(
+        #     self.max_path_length,
+        #     self.num_eval_steps_per_epoch,
+        #     discard_incomplete_paths=True,
+        # )
         gt.stamp('evaluation sampling')
 
         for _ in range(self.num_train_loops_per_epoch):
-            new_expl_paths = self.expl_data_collector.collect_new_paths(
-                self.max_path_length,
-                self.num_expl_steps_per_train_loop,
-                discard_incomplete_paths=False,
-            )
+            # new_expl_paths = self.expl_data_collector.collect_new_paths(
+            #     self.max_path_length,
+            #     self.num_expl_steps_per_train_loop,
+            #     discard_incomplete_paths=False,
+            # )
             gt.stamp('exploration sampling', unique=False)
 
             if not self.offline_rl:

@@ -2,9 +2,9 @@ import joblib
 import numpy as np
 import pickle
 
-import boto3
+# import boto3
 
-from rlkit.launchers.conf import LOCAL_LOG_DIR, AWS_S3_PATH
+from rlkit.launchers.conf import LOCAL_LOG_DIR#, AWS_S3_PATH
 import os
 
 PICKLE = 'pickle'
